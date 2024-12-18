@@ -1,0 +1,32 @@
+[
+  {
+    "position": {
+      "x": 0.02,
+      "y": 0.02,
+      "z": 0.02
+    },
+    "color": 16525,
+    "radio": 0.001,
+    "translation": 1
+  },
+  {
+    "position": {
+      "x": 0.03,
+      "y": 0.03,
+      "z": 0.03
+    },
+    "color": 16525,
+    "radio": 0.002,
+    "translation": 1
+  },
+  {
+    "position": {
+      "x": 0.10,
+      "y": 0.09,
+      "z": 0.10
+    },
+    "color": 16525,
+    "radio": 0.012,
+    "translation": 1
+  }
+]

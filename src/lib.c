@@ -75,3 +75,12 @@ void rotateCamera(float angle, float axisX, float axisY, float axisZ) {
     glLoadIdentity();
     glRotatef(angle, axisX, axisY, axisZ);
 }
+
+void drawLine(float x1, float y1, float z1, float x2, float y2, float z2) {
+    glBegin(GL_LINES);
+
+    glVertex3f(x1, y1, z1);
+    glVertex3f(x2, y2, z2);
+
+    glEnd();
+}
