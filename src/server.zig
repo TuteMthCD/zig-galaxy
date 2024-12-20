@@ -14,7 +14,7 @@ pub fn createServer(array: *std.ArrayList(Sphere)) !void {
 
     const timeout = posix.timeval{ .sec = 0, .usec = 0 };
 
-    try posix.setsockopt(listener, posix.SOL.SOCKET, posix.SO.REUSEADDR, &std.mem.toBytes(timeout));
+    try posix.setsockopt(listener, posix.SOL.SOCKET, posix.SO.REUSEADDR, &std.mem.toBytes(@as(c_int, 1)));
     try posix.setsockopt(listener, posix.SOL.SOCKET, posix.SO.SNDTIMEO, &std.mem.toBytes(timeout));
 
     try posix.bind(listener, &addr.any, addr.getOsSockLen()); //redirecciona el puerto a nuestro FD , posix btw
@@ -23,8 +23,7 @@ pub fn createServer(array: *std.ArrayList(Sphere)) !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
 
-    var readBuff = try gpa.allocator().alloc(u8, 512);
-    defer gpa.allocator().free(readBuff);
+    const allocator = gpa.allocator();
 
     var clientAddr: std.net.Address = undefined;
     var clientAddrLen: posix.socklen_t = @sizeOf(std.net.Address);
@@ -38,23 +37,21 @@ pub fn createServer(array: *std.ArrayList(Sphere)) !void {
 
         const stream = std.net.Stream{ .handle = sck };
 
-        const read = stream.read(readBuff) catch |err| {
-            posix.close(sck);
-            std.debug.print("error {}\n", .{err});
+        const read = try stream.reader().readUntilDelimiterAlloc(allocator, '\n', 4000 * 1024);
+        defer allocator.free(read);
 
-            continue;
-        };
-
-        const json = try std.json.parseFromSlice([]Sphere, gpa.allocator(), readBuff[0..read], .{ .allocate = .alloc_if_needed });
+        const json = try std.json.parseFromSlice([]Sphere, allocator, read, .{ .allocate = .alloc_if_needed });
         defer json.deinit();
 
+        std.Thread.Mutex.lock(&main.mutex);
         array.clearAndFree();
-
         for (json.value) |value| {
-            std.debug.print("{}\n", .{value});
-
             try array.append(value);
         }
+
+        std.Thread.Mutex.unlock(&main.mutex);
+
+        std.debug.print("array len {}\n", .{array.items.len});
     }
 }
 

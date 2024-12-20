@@ -9,10 +9,12 @@ const screen_height = 1024;
 const resolution = 50;
 const radial = 0.01;
 
+pub var mutex = std.Thread.Mutex{};
+
 pub extern "c" fn framebuffer_size_callback_c(window: ?*glfw.GLFWwindow, width: i32, height: i32) void;
 pub extern "c" fn process_input_c(window: ?*glfw.GLFWwindow) void;
 pub extern "c" fn drawCircle(radio: f64, posx: f64, posy: f64, vertexs: i32, pitch: f64) void;
-pub extern "c" fn drawSphere(radio: f32, posx: f32, posy: f32, posz: f32, vertexs: i32) void;
+pub extern "c" fn drawSphere(radio: f64, posx: f64, posy: f64, posz: f64, vertexs: i32) void;
 pub extern "c" fn setCamera(cameraX: f64, cameraY: f64, cameraZ: f64, targetX: f64, targetY: f64, targetZ: f64) void;
 pub extern "c" fn rotateCamera(angle: f32, camerax: f32, cameraY: f32, cameraZ: f32) void;
 
@@ -21,11 +23,11 @@ pub const Vec3 = struct { x: f32 = 0, y: f32 = 0, z: f32 = 0 };
 pub const Sphere = struct {
     position: Vec3,
     color: i32,
-    radio: f32 = 1,
+    radio: f64 = 1,
     translation: f32 = 0,
 
     fn draw(self: *Sphere) void {
-        drawSphere(self.radio, self.position.x, self.position.y, self.position.z, 5);
+        drawSphere(self.radio, self.position.x, self.position.y, self.position.z, 10);
     }
 
     fn log(self: *Sphere) void {
@@ -78,7 +80,7 @@ pub fn main() !void {
     var list = std.ArrayList(Sphere).init(allocator);
     defer list.deinit();
 
-    try list.append(.{ .color = 0xFFFFFF, .radio = 0.03, .translation = 0, .position = .{ .y = 0, .x = 0, .z = 0 } });
+    // try list.append(.{ .color = 0xFFFFFF, .radio = 0.03, .translation = 0, .position = .{ .y = 0, .x = 0, .z = 0 } });
 
     const th = try std.Thread.spawn(.{}, sv.createServer, .{&list});
     _ = th;
@@ -90,9 +92,11 @@ pub fn main() !void {
         glfw.glClear(glfw.GL_COLOR_BUFFER_BIT);
         //render
 
+        mutex.lock();
         for (list.items) |*wordl| {
             wordl.draw();
         }
+        mutex.unlock();
 
         //end render;
         glfw.glfwSwapBuffers(window);

@@ -31,26 +31,26 @@ void drawCircle(double radio, double posx, double posy, int vertexs, double pitc
     glEnd();
 }
 
-void drawSphere(float radio, float posx, float posy, float posz, int segments) {
-    float thetaStep = PI / segments;   // Incremento para la latitud
-    float phiStep = 2 * PI / segments; // Incremento para la longitud
+void drawSphere(double radio, double posx, double posy, double posz, int segments) {
+    double thetaStep = PI / segments;   // Incremento para la latitud
+    double phiStep = 2 * PI / segments; // Incremento para la longitud
 
-    for(float theta = 0; theta <= 2 * PI; theta += thetaStep) {
+    for(double theta = 0; theta <= 2 * PI; theta += thetaStep) {
         glBegin(GL_TRIANGLE_STRIP);
         // glBegin(GL_POINTS);
 
-        for(float phi = 0; phi <= 2 * PI; phi += phiStep) {
+        for(double phi = 0; phi <= 2 * PI; phi += phiStep) {
             // Primer vértice de la tira
-            float x1 = radio * sin(theta) * cos(phi) + posx;
-            float y1 = radio * sin(theta) * sin(phi) + posy;
-            float z1 = radio * cos(theta) + posz;
+            double x1 = radio * sin(theta) * cos(phi) + posx;
+            double y1 = radio * sin(theta) * sin(phi) + posy;
+            double z1 = radio * cos(theta) + posz;
 
             glVertex3d(x1, y1, z1);
 
             // Segundo vértice de la tira
-            float x2 = radio * sin(theta + thetaStep) * cos(phi) + posx;
-            float y2 = radio * sin(theta + thetaStep) * sin(phi) + posy;
-            float z2 = radio * cos(theta + thetaStep) + posz;
+            double x2 = radio * sin(theta + thetaStep) * cos(phi) + posx;
+            double y2 = radio * sin(theta + thetaStep) * sin(phi) + posy;
+            double z2 = radio * cos(theta + thetaStep) + posz;
 
             glVertex3f(x2, y2, z2);
         }
